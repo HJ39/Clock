@@ -40,6 +40,7 @@ final class AlarmOptionsTableViewCell: UITableViewCell{
         let field = UITextField()
         field.placeholder = "알람"
         field.textColor = .gray
+        field.textAlignment = .right
         field.translatesAutoresizingMaskIntoConstraints = false
         return field
     }()
@@ -59,8 +60,7 @@ final class AlarmOptionsTableViewCell: UITableViewCell{
         self.addSubview(inputText)
         inputText.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
         inputText.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -10).isActive = true
-        
-        
+        inputText.leftAnchor.constraint(equalTo: self.label.rightAnchor, constant: 10).isActive = true
     }
     
     // MARK: index 2 번인 경우 실행
@@ -72,17 +72,10 @@ final class AlarmOptionsTableViewCell: UITableViewCell{
         choicelabel.text = text
     }
     
-    // MARK: index 3 번인 경우 실행
-    private func case3Option(text: String){
-//        label.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
-//        label.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -10).isActive = true
-    }
-    
-    
     // MARK: tableview에서 전달 받은 데이터 적용
     func inputOptions(title: String, text: String, index: Int){
         label.text = title
-        print(text)
+        
         switch index{
         case 0:
             case0Option(text: text)
@@ -90,10 +83,8 @@ final class AlarmOptionsTableViewCell: UITableViewCell{
             case1Option(text: text)
         case 2:
             case2Option(text: text)
-        case 3:
-            case3Option(text: text)
         default:
-            print("잘못된 접근입니다.")
+            print("")
         }
         
         

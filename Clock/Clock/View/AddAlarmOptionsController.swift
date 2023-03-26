@@ -12,7 +12,9 @@ final class AddAlarmOptionsController: UIViewController{
     private let optionList = ["반복", "레이블", "사운드", "다시 알림"]
     private let chooseList = ["안 함 >", "", "전파 탐지기 >", ""]
     private var alarmLabel: String?
-    private var alarmTime: String?
+    private var alarmTime: Date?
+    private var checkReAlarm: Bool?
+    private var soundSong: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,6 +43,7 @@ final class AddAlarmOptionsController: UIViewController{
         btn.setTitle("취소", for: .normal)
         btn.titleLabel?.font = UIFont.systemFont(ofSize: 20)
         btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.addTarget(self, action: #selector(clickedCancelBtn), for: .touchUpInside)
         return btn
     }()
     
@@ -51,6 +54,7 @@ final class AddAlarmOptionsController: UIViewController{
         btn.setTitle("저장", for: .normal)
         btn.titleLabel?.font = UIFont.systemFont(ofSize: 20)
         btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.addTarget(self, action: #selector(clickedSaveBtn), for: .touchUpInside)
         return btn
     }()
     
@@ -76,6 +80,16 @@ final class AddAlarmOptionsController: UIViewController{
         tableview.translatesAutoresizingMaskIntoConstraints = false
         return tableview
     }()
+    
+    // MARK: 다시 알림 Switch
+    private lazy var reAlarmSwitch: UISwitch = {
+       let checkSwitch = UISwitch()
+        checkSwitch.isOn = true
+        checkSwitch.addTarget(self, action: #selector(handleSwitch), for: .valueChanged)
+        return checkSwitch
+    }()
+    
+    
     
     /*
      UI Action & Add to View & AutoLayout 함수
@@ -119,22 +133,46 @@ final class AddAlarmOptionsController: UIViewController{
             tableView.leftAnchor.constraint(equalTo: self.view.leftAnchor, constant: 30),
             tableView.rightAnchor.constraint(equalTo: self.view.rightAnchor, constant: -30),
             tableView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height/7)
-            
-            
         ])
-        
     }
     
     // MARK: 시간 선택할 때 실행되는 함수
     @objc
     private func handleDatePicker(_ sender: UIDatePicker){
         
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "HH:mm"
+//        let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "HH:mm"
+//
+//        let dateString = dateFormatter.string(from: sender.date)
+//        self.alarmTime = dateString
+        self.alarmTime = sender.date
         
-        let dateString = dateFormatter.string(from: sender.date)
-        self.alarmTime = dateString
-        print(dateString)
+    }
+    
+    // MARK: Switch 변경시 실행되는 함수
+    @objc
+    private func handleSwitch(_ sender: UISwitch){
+        if sender.isOn{
+            checkReAlarm = true
+        }
+        else{
+            checkReAlarm = false
+        }
+    }
+    
+    // MARK: 저장 버튼 누르면 실행
+    @objc
+    private func clickedSaveBtn(){
+        
+    }
+    
+    // MARK: 취소 버튼 누르면 실행
+    @objc
+    private func clickedCancelBtn(){
+        alarmLabel = nil
+        alarmTime = nil
+        checkReAlarm = nil
+        self.dismiss(animated: true)
     }
     
 }
@@ -146,9 +184,16 @@ extension AddAlarmOptionsController: UITableViewDataSource, UITableViewDelegate{
         let cell = tableView.dequeueReusableCell(withIdentifier: AlarmOptionsTableViewCell.identifier, for: indexPath) as! AlarmOptionsTableViewCell
         
         cell.backgroundColor = UIColor(red: 40/255, green: 40/255, blue: 40/255, alpha: 1)
-        cell.inputOptions(title: optionList[indexPath.row], text: chooseList[indexPath.row], index: indexPath.row)
-        cell.inputText.delegate = self
         
+        /// 다시 알림 스위치 기능
+        if indexPath.row == 3 {
+            cell.accessoryView = reAlarmSwitch
+            cell.inputOptions(title: optionList[indexPath.row], text: chooseList[indexPath.row], index: indexPath.row)
+        }
+        else{
+            cell.inputOptions(title: optionList[indexPath.row], text: chooseList[indexPath.row], index: indexPath.row)
+            cell.inputText.delegate = self
+        }
         return cell
     }
     
@@ -173,4 +218,9 @@ extension AddAlarmOptionsController: UITextFieldDelegate{
         self.alarmLabel = textField.text
         return true
     }
+}
+
+// MARK: 알림 설정한 옵션들을 전송하는 프로토콜
+protocol SendNewAlarm{
+    func sendNewAlarm(time: Date, label: String, soundSong: String, reAlarmCheck: Bool)
 }

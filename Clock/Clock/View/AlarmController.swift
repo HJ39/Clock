@@ -70,7 +70,6 @@ class AlarmController: UIViewController {
     
     // MARK: UI AutoLayout 설정
     private func setAutoLayout(){
-
         NSLayoutConstraint.activate([
             /// ScrollView AutoLayout
             self.scrollView.topAnchor.constraint(equalTo: self.view.topAnchor),
@@ -82,21 +81,23 @@ class AlarmController: UIViewController {
             /// label AutoLayout
             self.label.topAnchor.constraint(equalTo: self.scrollView.topAnchor, constant: 0),
             self.label.leftAnchor.constraint(equalTo: self.scrollView.leftAnchor, constant: 10),
-            
-            
-            
+              
         ])
-        
-        
-        
     }
     
     // MARK: 알림 추가 버튼 눌렀을 때
     @objc private func clickedPlusBtn(){
         let addAlarm = AddAlarmOptionsController()
         addAlarm.modalPresentationStyle = .formSheet
+        self.scrollView.backgroundColor = UIColor(red: 20/255, green: 30/255, blue: 20/255, alpha: 1)
         self.present(addAlarm, animated: true)
     }
     
 }
 
+// MARK: 설정한 알람 정보를 가져옴
+extension AlarmController: SendNewAlarm{
+    func sendNewAlarm(time: Date, label: String, soundSong: String, reAlarmCheck: Bool) {
+        
+    }
+}
