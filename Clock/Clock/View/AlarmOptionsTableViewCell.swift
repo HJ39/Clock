@@ -36,9 +36,10 @@ final class AlarmOptionsTableViewCell: UITableViewCell{
     }()
     
     // MARK: 다른 화면으로 이동하는 라벨
-    private lazy var inputText: UITextField = {
+    lazy var inputText: UITextField = {
         let field = UITextField()
         field.placeholder = "알람"
+        field.textColor = .gray
         field.translatesAutoresizingMaskIntoConstraints = false
         return field
     }()
@@ -58,6 +59,8 @@ final class AlarmOptionsTableViewCell: UITableViewCell{
         self.addSubview(inputText)
         inputText.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
         inputText.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -10).isActive = true
+        
+        
     }
     
     // MARK: index 2 번인 경우 실행

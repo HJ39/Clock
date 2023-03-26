@@ -11,6 +11,8 @@ import UIKit
 final class AddAlarmOptionsController: UIViewController{
     private let optionList = ["반복", "레이블", "사운드", "다시 알림"]
     private let chooseList = ["안 함 >", "", "전파 탐지기 >", ""]
+    private var alarmLabel: String?
+    private var alarmTime: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -68,7 +70,7 @@ final class AddAlarmOptionsController: UIViewController{
     private lazy var tableView: UITableView = {
         let tableview = UITableView()
         tableview.backgroundColor = UIColor(red: 40/255, green: 40/255, blue: 40/255, alpha: 1)
-        tableview.layer.cornerRadius = 20
+        tableview.layer.cornerRadius = 10
         tableview.isScrollEnabled = false
         tableview.register(AlarmOptionsTableViewCell.self, forCellReuseIdentifier: AlarmOptionsTableViewCell.identifier)
         tableview.translatesAutoresizingMaskIntoConstraints = false
@@ -126,8 +128,13 @@ final class AddAlarmOptionsController: UIViewController{
     // MARK: 시간 선택할 때 실행되는 함수
     @objc
     private func handleDatePicker(_ sender: UIDatePicker){
-        print(sender.date)
         
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH:mm"
+        
+        let dateString = dateFormatter.string(from: sender.date)
+        self.alarmTime = dateString
+        print(dateString)
     }
     
 }
@@ -140,6 +147,8 @@ extension AddAlarmOptionsController: UITableViewDataSource, UITableViewDelegate{
         
         cell.backgroundColor = UIColor(red: 40/255, green: 40/255, blue: 40/255, alpha: 1)
         cell.inputOptions(title: optionList[indexPath.row], text: chooseList[indexPath.row], index: indexPath.row)
+        cell.inputText.delegate = self
+        
         return cell
     }
     
@@ -148,7 +157,20 @@ extension AddAlarmOptionsController: UITableViewDataSource, UITableViewDelegate{
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat { return tableView.frame.height/4 }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
+
+extension AddAlarmOptionsController: UITextFieldDelegate{
+    // MARK: 알람 레이블을 모두 입력하고 확인을 눌렀을 때
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        self.alarmLabel = textField.text
+        return true
+    }
+    
+    // MARK: textfield를 입력하고 키보드가 내려갈 때 실행되는 함수
+    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+        self.alarmLabel = textField.text
+        return true
     }
 }
