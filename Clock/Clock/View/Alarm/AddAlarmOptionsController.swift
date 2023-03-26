@@ -13,8 +13,9 @@ final class AddAlarmOptionsController: UIViewController{
     private let chooseList = ["안 함 >", "", "전파 탐지기 >", ""]
     private var alarmLabel: String?
     private var alarmTime: Date?
-    private var checkReAlarm: Bool?
+    private var checkReAlarm: Bool = true
     private var soundSong: String?
+    var delegate: SendNewAlarm?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -67,6 +68,7 @@ final class AddAlarmOptionsController: UIViewController{
         picker.timeZone = .autoupdatingCurrent
         picker.addTarget(self, action: #selector(handleDatePicker), for: .valueChanged)
         picker.translatesAutoresizingMaskIntoConstraints = false
+        self.alarmTime = picker.date
         return picker
     }()
     
@@ -163,7 +165,12 @@ final class AddAlarmOptionsController: UIViewController{
     // MARK: 저장 버튼 누르면 실행
     @objc
     private func clickedSaveBtn(){
-        
+        self.delegate?.mustSend(color: UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 1))
+        self.soundSong = "전파 탐지기"
+        guard let alarmTime = self.alarmTime else { return }
+        guard let soundSong = self.soundSong else { return }
+        self.delegate?.sendNewAlarm?(time: alarmTime, label: self.alarmLabel, soundSong: soundSong, reAlarmCheck: checkReAlarm)
+        self.dismiss(animated: true)
     }
     
     // MARK: 취소 버튼 누르면 실행
@@ -171,7 +178,8 @@ final class AddAlarmOptionsController: UIViewController{
     private func clickedCancelBtn(){
         alarmLabel = nil
         alarmTime = nil
-        checkReAlarm = nil
+        checkReAlarm = true
+        self.delegate?.mustSend(color: UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 1))
         self.dismiss(animated: true)
     }
     
@@ -221,6 +229,11 @@ extension AddAlarmOptionsController: UITextFieldDelegate{
 }
 
 // MARK: 알림 설정한 옵션들을 전송하는 프로토콜
-protocol SendNewAlarm{
-    func sendNewAlarm(time: Date, label: String, soundSong: String, reAlarmCheck: Bool)
+@objc protocol SendNewAlarm{
+    
+    /// optional 타입으로 저장 버튼 누르는 경우에만 실행
+    @objc optional func sendNewAlarm(time: Date, label: String?, soundSong: String, reAlarmCheck: Bool)
+    
+    /// 취소 버튼으로 화면이 꺼지는 경우 실행
+    func mustSend(color: UIColor)
 }

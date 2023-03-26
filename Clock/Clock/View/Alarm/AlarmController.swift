@@ -12,6 +12,7 @@ class AlarmController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        /// UI 등록
         addUI()
     }
     
@@ -42,6 +43,7 @@ class AlarmController: UIViewController {
         return scroll
     }()
     
+    // MARK: '알람' 라벨 표시
     private lazy var label: UILabel = {
        let label = UILabel()
         label.text = "알람"
@@ -51,20 +53,33 @@ class AlarmController: UIViewController {
         return label
     }()
     
+    // MARK: 새롭게 추가되는 알람들 표시할 테이블 뷰
+    private lazy var addAlarmTableView: UITableView = {
+        let tableView = UITableView()
+        tableView.isScrollEnabled = false
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(AlarmListTableViewCell.self, forCellReuseIdentifier: AlarmListTableViewCell.identifer)
+        return tableView
+    }()
+    
     /*
      UI Action & Add to View & AutoLayout 함수
      */
     
     // MARK: View에 UI 추가하는 함수
     private func addUI(){
-        
         ///  알림 추가 버튼 등록
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: plusBtn)
         
         /// scroll view 등록
         self.view.addSubview(self.scrollView)
         
+        /// scrollView 아래 라벨 등록
         scrollView.addSubview(label)
+        
+        /// table View 등록
+        scrollView.addSubview(addAlarmTableView)
         setAutoLayout()
     }
     
@@ -81,14 +96,21 @@ class AlarmController: UIViewController {
             /// label AutoLayout
             self.label.topAnchor.constraint(equalTo: self.scrollView.topAnchor, constant: 0),
             self.label.leftAnchor.constraint(equalTo: self.scrollView.leftAnchor, constant: 10),
-              
+            
+            /// tableview AutoLayout
+            self.addAlarmTableView.topAnchor.constraint(equalTo: self.label.bottomAnchor,constant: 10),
+            self.addAlarmTableView.bottomAnchor.constraint(equalTo: self.scrollView.bottomAnchor, constant: -10),
+            self.addAlarmTableView.leftAnchor.constraint(equalTo: self.scrollView.leftAnchor, constant: 10),
+            self.addAlarmTableView.rightAnchor.constraint(equalTo: self.scrollView.rightAnchor, constant: -10),
         ])
     }
+
     
     // MARK: 알림 추가 버튼 눌렀을 때
     @objc private func clickedPlusBtn(){
         let addAlarm = AddAlarmOptionsController()
         addAlarm.modalPresentationStyle = .formSheet
+        addAlarm.delegate = self
         self.scrollView.backgroundColor = UIColor(red: 20/255, green: 30/255, blue: 20/255, alpha: 1)
         self.present(addAlarm, animated: true)
     }
@@ -97,7 +119,24 @@ class AlarmController: UIViewController {
 
 // MARK: 설정한 알람 정보를 가져옴
 extension AlarmController: SendNewAlarm{
-    func sendNewAlarm(time: Date, label: String, soundSong: String, reAlarmCheck: Bool) {
-        
+    func mustSend(color: UIColor) {
+        self.scrollView.backgroundColor = color
+        self.addAlarmTableView.backgroundColor = color
     }
+    
+    func sendNewAlarm(time: Date, label: String?, soundSong: String, reAlarmCheck: Bool) {
+        print("success")
+    }
+}
+
+// MARK: 저장된 알람들 표시할 테이블 뷰
+extension AlarmController: UITableViewDelegate,UITableViewDataSource{
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: AlarmListTableViewCell.identifer, for: indexPath) as! AlarmListTableViewCell
+        
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { return 1}
 }
