@@ -1,0 +1,154 @@
+//
+//  AddAlarmOptions.swift
+//  Clock
+//
+//  Created by 정호진 on 2023/03/26.
+//
+
+import Foundation
+import UIKit
+
+final class AddAlarmOptionsController: UIViewController{
+    private let optionList = ["반복", "레이블", "사운드", "다시 알림"]
+    private let chooseList = ["안 함 >", "", "전파 탐지기 >", ""]
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.view.backgroundColor = UIColor(red: 20/255, green: 20/255, blue: 20/255, alpha: 1)
+        addToView()
+    }
+    
+    /*
+     UI 코드
+     */
+    
+    // MARK: Label 추가
+    private lazy var label: UILabel = {
+        let label = UILabel()
+        label.text = "알람 추가"
+        label.textColor = .white
+        label.font.withSize(20)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    // MARK: 취소 버튼
+    private lazy var cancelBtn: UIButton = {
+        let btn = UIButton()
+        btn.setTitleColor(.orange, for: .normal)
+        btn.setTitle("취소", for: .normal)
+        btn.titleLabel?.font = UIFont.systemFont(ofSize: 20)
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        return btn
+    }()
+    
+    // MARK: 저장 버튼
+    private lazy var saveBtn: UIButton = {
+        let btn = UIButton()
+        btn.setTitleColor(.orange, for: .normal)
+        btn.setTitle("저장", for: .normal)
+        btn.titleLabel?.font = UIFont.systemFont(ofSize: 20)
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        return btn
+    }()
+    
+    // MARK: 시간 선택하는 UI
+    private lazy var datePicker: UIDatePicker = {
+        let picker = UIDatePicker()
+        picker.preferredDatePickerStyle = .wheels
+        picker.datePickerMode = .time
+        picker.locale = Locale(identifier: "ko-KR")
+        picker.timeZone = .autoupdatingCurrent
+        picker.addTarget(self, action: #selector(handleDatePicker), for: .valueChanged)
+        picker.translatesAutoresizingMaskIntoConstraints = false
+        return picker
+    }()
+    
+    // MARK: 알림 추가하는 옵션 tableview
+    private lazy var tableView: UITableView = {
+        let tableview = UITableView()
+        tableview.backgroundColor = UIColor(red: 40/255, green: 40/255, blue: 40/255, alpha: 1)
+        tableview.layer.cornerRadius = 20
+        tableview.isScrollEnabled = false
+        tableview.register(AlarmOptionsTableViewCell.self, forCellReuseIdentifier: AlarmOptionsTableViewCell.identifier)
+        tableview.translatesAutoresizingMaskIntoConstraints = false
+        return tableview
+    }()
+    
+    /*
+     UI Action & Add to View & AutoLayout 함수
+     */
+    
+    // MARK: 뷰에 UI 추가하는 함수
+    private func addToView(){
+        self.view.addSubview(label)
+        self.view.addSubview(cancelBtn)
+        self.view.addSubview(saveBtn)
+        self.view.addSubview(datePicker)
+        self.view.addSubview(tableView)
+        tableView.delegate = self
+        tableView.dataSource = self
+        setAutoLayout()
+    }
+    
+    // MARK: AutoLayout 설정하는 함수
+    private func setAutoLayout(){
+        NSLayoutConstraint.activate([
+            /// Label AutoLayout
+            label.topAnchor.constraint(equalTo: self.view.topAnchor,constant: 10),
+            label.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+            
+            /// 취소 버튼 AutoLayout
+            cancelBtn.topAnchor.constraint(equalTo: self.view.topAnchor,constant: 10),
+            cancelBtn.leftAnchor.constraint(equalTo: self.view.leftAnchor,constant: 10),
+            
+            /// 저장 버튼 AutoLayout
+            saveBtn.topAnchor.constraint(equalTo: self.view.topAnchor,constant: 10),
+            saveBtn.rightAnchor.constraint(equalTo: self.view.rightAnchor,constant: -10),
+            
+            /// datapicker AutoLayout
+            datePicker.topAnchor.constraint(equalTo: self.label.bottomAnchor, constant: 10),
+            datePicker.leftAnchor.constraint(equalTo: self.view.leftAnchor),
+            datePicker.rightAnchor.constraint(equalTo: self.view.rightAnchor),
+            datePicker.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height/5),
+            
+            /// tableview AutoLayout
+            tableView.topAnchor.constraint(equalTo: self.datePicker.bottomAnchor, constant: 10),
+            tableView.leftAnchor.constraint(equalTo: self.view.leftAnchor, constant: 30),
+            tableView.rightAnchor.constraint(equalTo: self.view.rightAnchor, constant: -30),
+            tableView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height/7)
+            
+            
+        ])
+        
+    }
+    
+    // MARK: 시간 선택할 때 실행되는 함수
+    @objc
+    private func handleDatePicker(_ sender: UIDatePicker){
+        print(sender.date)
+        
+    }
+    
+}
+
+// MARK: tableview 옵션 설정
+extension AddAlarmOptionsController: UITableViewDataSource, UITableViewDelegate{
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: AlarmOptionsTableViewCell.identifier, for: indexPath) as! AlarmOptionsTableViewCell
+        
+        cell.backgroundColor = UIColor(red: 40/255, green: 40/255, blue: 40/255, alpha: 1)
+        cell.inputOptions(title: optionList[indexPath.row], text: chooseList[indexPath.row], index: indexPath.row)
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { return optionList.count }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat { return tableView.frame.height/4 }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
