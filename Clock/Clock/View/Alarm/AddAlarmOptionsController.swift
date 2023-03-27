@@ -8,13 +8,16 @@
 import Foundation
 import UIKit
 
+// MARK: 알람 추가 화면
 final class AddAlarmOptionsController: UIViewController{
     private let optionList = ["반복", "레이블", "사운드", "다시 알림"]
     private let chooseList = ["안 함 >", "", "전파 탐지기 >", ""]
-    private var alarmLabel: String?
-    private var alarmTime: Date?
-    private var checkReAlarm: Bool = true
-    private var soundSong: String?
+    private var alarmTime: Date?    /// 시간
+    private var repeatDay: String?  /// 반복 요일
+    private var alarmLabel: String? /// 레이블
+    private var soundSong: String?  /// 사운드
+    private var checkReAlarm: Bool = true   ///다시 알림기능
+    
     var delegate: SendNewAlarm?
     
     override func viewDidLoad() {
@@ -141,12 +144,6 @@ final class AddAlarmOptionsController: UIViewController{
     // MARK: 시간 선택할 때 실행되는 함수
     @objc
     private func handleDatePicker(_ sender: UIDatePicker){
-        
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "HH:mm"
-//
-//        let dateString = dateFormatter.string(from: sender.date)
-//        self.alarmTime = dateString
         self.alarmTime = sender.date
         
     }
@@ -167,9 +164,11 @@ final class AddAlarmOptionsController: UIViewController{
     private func clickedSaveBtn(){
         self.delegate?.mustSend(color: UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 1))
         self.soundSong = "전파 탐지기"
+        self.repeatDay = "안 함"
         guard let alarmTime = self.alarmTime else { return }
+        guard let repeatDay = self.repeatDay else { return }
         guard let soundSong = self.soundSong else { return }
-        self.delegate?.sendNewAlarm?(time: alarmTime, label: self.alarmLabel, soundSong: soundSong, reAlarmCheck: checkReAlarm)
+        self.delegate?.sendNewAlarm?(time: alarmTime, repeatDay: repeatDay, label: self.alarmLabel, soundSong: soundSong, reAlarmCheck: checkReAlarm)
         self.dismiss(animated: true)
     }
     
@@ -232,7 +231,7 @@ extension AddAlarmOptionsController: UITextFieldDelegate{
 @objc protocol SendNewAlarm{
     
     /// optional 타입으로 저장 버튼 누르는 경우에만 실행
-    @objc optional func sendNewAlarm(time: Date, label: String?, soundSong: String, reAlarmCheck: Bool)
+    @objc optional func sendNewAlarm(time: Date, repeatDay: String, label: String?, soundSong: String, reAlarmCheck: Bool)
     
     /// 취소 버튼으로 화면이 꺼지는 경우 실행
     func mustSend(color: UIColor)
