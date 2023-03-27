@@ -15,12 +15,10 @@ final class AlarmListTableViewCell: UITableViewCell{
     private lazy var timeLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
-        label.font = .systemFont(ofSize: 30)
+        label.font = .systemFont(ofSize: 50)
         label.translatesAutoresizingMaskIntoConstraints = false
         
-        addSubview(label)
-        label.topAnchor.constraint(equalTo: self.topAnchor,constant: 10).isActive = true
-        label.leftAnchor.constraint(equalTo: self.leftAnchor,constant: 10).isActive = true
+        
         
         return label
     }()
@@ -29,20 +27,53 @@ final class AlarmListTableViewCell: UITableViewCell{
     private lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
-        label.font = .systemFont(ofSize: 30)
+        label.font = .systemFont(ofSize: 15)
         label.translatesAutoresizingMaskIntoConstraints = false
         
-        addSubview(label)
         
-        label.bottomAnchor.constraint(equalTo: self.bottomAnchor,constant: -10).isActive = true
-        label.leftAnchor.constraint(equalTo: self.leftAnchor,constant: 10).isActive = true
         return label
     }()
     
-    // MARK: 데이터 입력하는 함수
-    func inputText(time: String, description: String){
-        self.timeLabel.text = time
-        self.descriptionLabel.text = description
+    // MARK: '알람 표시 라벨'
+    private lazy var alarmLabel: UILabel = {
+        let label = UILabel()
+        label.text = "알람"
+        label.textColor = .white
+        label.font = .systemFont(ofSize: 30)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        
+        return label
+    }()
+    
+    private func addUI(){
+        addSubview(alarmLabel)
+        alarmLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
+        alarmLabel.leftAnchor.constraint(equalTo: self.leftAnchor,constant: 10).isActive = true
     }
+    
+    private func addNewAlarmUI(){
+        addSubview(descriptionLabel)
+        addSubview(timeLabel)
+        
+        timeLabel.topAnchor.constraint(equalTo: self.topAnchor,constant: 10).isActive = true
+        timeLabel.leftAnchor.constraint(equalTo: self.leftAnchor,constant: 10).isActive = true
+        descriptionLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor,constant: -10).isActive = true
+        descriptionLabel.leftAnchor.constraint(equalTo: self.leftAnchor,constant: 10).isActive = true
+    }
+    // MARK: 알람 데이터 입력하는 함수
+    func inputText(time: String?, description: String?, index: Int){
+        
+        switch index{
+        case 0:
+            addUI()
+        default:
+            addNewAlarmUI()
+            self.timeLabel.text = time
+            self.descriptionLabel.text = description
+        }
+        
+    }
+
     
 }

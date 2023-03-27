@@ -162,13 +162,16 @@ final class AddAlarmOptionsController: UIViewController{
     // MARK: 저장 버튼 누르면 실행
     @objc
     private func clickedSaveBtn(){
-        self.delegate?.mustSend(color: UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 1))
         self.soundSong = "전파 탐지기"
         self.repeatDay = "안 함"
+
         guard let alarmTime = self.alarmTime else { return }
         guard let repeatDay = self.repeatDay else { return }
         guard let soundSong = self.soundSong else { return }
-        self.delegate?.sendNewAlarm?(time: alarmTime, repeatDay: repeatDay, label: self.alarmLabel, soundSong: soundSong, reAlarmCheck: checkReAlarm)
+        
+        self.delegate?.mustSend(color: UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 1))
+        self.delegate?.sendNewAlarm?(time: alarmTime, repeatDay: repeatDay, label: alarmLabel, soundSong: soundSong, reAlarmCheck: checkReAlarm)
+
         self.dismiss(animated: true)
     }
     

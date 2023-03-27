@@ -13,9 +13,10 @@ class AlarmController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.view.backgroundColor = UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 1)
         
         /// UI 등록
-        addUI()
+        addTableView()
     }
     
     /*
@@ -34,31 +35,12 @@ class AlarmController: UIViewController {
         btn.addTarget(self, action: #selector(clickedPlusBtn), for: .touchUpInside)
         return btn
     }()
-
-    // MARK: Scroll View UI
-    private lazy var scrollView : UIScrollView = {
-        let scroll = UIScrollView()
-        scroll.backgroundColor = .black
-        scroll.translatesAutoresizingMaskIntoConstraints = false
-        scroll.showsVerticalScrollIndicator = true
-        scroll.isScrollEnabled = true
-        return scroll
-    }()
-    
-    // MARK: '알람' 라벨 표시
-    private lazy var label: UILabel = {
-       let label = UILabel()
-        label.text = "알람"
-        label.textColor = .white
-        label.font = UIFont(name: "Al Nile", size: 30)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
     
     // MARK: 새롭게 추가되는 알람들 표시할 테이블 뷰
     private lazy var addAlarmTableView: UITableView = {
         let tableView = UITableView()
-        tableView.isScrollEnabled = false
+        tableView.separatorColor = .gray
+        tableView.backgroundColor = UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 1)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.register(AlarmListTableViewCell.self, forCellReuseIdentifier: AlarmListTableViewCell.identifer)
         return tableView
@@ -75,57 +57,29 @@ class AlarmController: UIViewController {
     /*
      UI Action & Add to View & AutoLayout 함수
      */
-    
-    // MARK: View에 UI 추가하는 함수
-    private func addUI(){
-        ///  알림 추가 버튼 등록
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: plusBtn)
-        
-        /// scroll view 등록
-        self.view.addSubview(self.scrollView)
-        
-        /// scrollView 아래 라벨 등록
-        scrollView.addSubview(label)
-        
-        
-        setAutoLayout()
-    }
+
     
     // MARK: View에 tableview 추가하는 함수
     private func addTableView(){
+        ///  알림 추가 버튼 등록
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: plusBtn)
+        
         /// table View 등록
-        scrollView.addSubview(addAlarmTableView)
+        self.view.addSubview(addAlarmTableView)
         addAlarmTableView.delegate = self
         addAlarmTableView.dataSource = self
-        
         setTableViewAutoLayout()
-    }
-    
-    // MARK: UI AutoLayout 설정
-    private func setAutoLayout(){
-        NSLayoutConstraint.activate([
-            /// ScrollView AutoLayout
-            self.scrollView.topAnchor.constraint(equalTo: self.view.topAnchor),
-            self.scrollView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
-            self.scrollView.leftAnchor.constraint(equalTo: self.view.leftAnchor),
-            self.scrollView.rightAnchor.constraint(equalTo: self.view.rightAnchor),
-            self.scrollView.widthAnchor.constraint(equalTo: self.view.widthAnchor),
-
-            /// label AutoLayout
-            self.label.topAnchor.constraint(equalTo: self.scrollView.topAnchor, constant: 0),
-            self.label.leftAnchor.constraint(equalTo: self.scrollView.leftAnchor, constant: 10),
-            
-        ])
     }
 
     // MARK: TableView AutoLayout 설정
     private func setTableViewAutoLayout(){
         NSLayoutConstraint.activate([
-            /// tableview AutoLayout
-            self.addAlarmTableView.topAnchor.constraint(equalTo: self.label.bottomAnchor,constant: 10),
-            self.addAlarmTableView.bottomAnchor.constraint(equalTo: self.scrollView.bottomAnchor, constant: -10),
-            self.addAlarmTableView.leftAnchor.constraint(equalTo: self.scrollView.leftAnchor, constant: 10),
-            self.addAlarmTableView.rightAnchor.constraint(equalTo: self.scrollView.rightAnchor, constant: -10),
+            /// table view Layout
+            self.addAlarmTableView.topAnchor.constraint(equalTo: self.view.topAnchor),
+            self.addAlarmTableView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+            self.addAlarmTableView.leftAnchor.constraint(equalTo: self.view.leftAnchor),
+            self.addAlarmTableView.rightAnchor.constraint(equalTo: self.view.rightAnchor),
+            
         ])
     }
     
@@ -135,7 +89,8 @@ class AlarmController: UIViewController {
         let addAlarm = AddAlarmOptionsController()
         addAlarm.modalPresentationStyle = .formSheet
         addAlarm.delegate = self
-        self.scrollView.backgroundColor = UIColor(red: 20/255, green: 30/255, blue: 20/255, alpha: 1)
+        self.view.backgroundColor = UIColor(red: 20/255, green: 30/255, blue: 20/255, alpha: 1)
+        self.addAlarmTableView.backgroundColor = UIColor(red: 20/255, green: 30/255, blue: 20/255, alpha: 1)
         self.present(addAlarm, animated: true)
     }
     
@@ -143,10 +98,11 @@ class AlarmController: UIViewController {
     @objc
     private func handleSwitch(_ sender: UISwitch){
         if sender.isOn{
-            checkAlarm = true
+            self.checkAlarm = true
+            
         }
         else{
-            checkAlarm = false
+            self.checkAlarm = false
         }
     }
     
@@ -158,20 +114,24 @@ extension AlarmController: SendNewAlarm{
     
     /// 취소 버튼이나 저장버튼 누른 경우 가져옴
     func mustSend(color: UIColor) {
-        self.scrollView.backgroundColor = color
+        self.view.backgroundColor = color
         self.addAlarmTableView.backgroundColor = color
     }
     
     /// 저장 버튼 누른 경우 데이터를 가져옴
     func sendNewAlarm(time: Date, repeatDay: String, label: String?, soundSong: String, reAlarmCheck: Bool) {
-        self.alarmList.append(NewAlarmInfo(alarmTime: time,
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH:mm"
+        
+        let dateString = dateFormatter.string(from: time)
+        
+        self.alarmList.append(NewAlarmInfo(alarmTime: dateString,
+                                           repeatDay: repeatDay,
                                            alarmLabel: label,
                                            soundSong: soundSong,
                                            checkReAlarm: reAlarmCheck))
-        print(time)
-        print(reAlarmCheck)
-        addTableView()
-        addAlarmTableView.reloadData()
+        print(self.alarmList)
+        self.addAlarmTableView.reloadData()
     }
 }
 
@@ -179,34 +139,56 @@ extension AlarmController: SendNewAlarm{
 extension AlarmController: UITableViewDelegate,UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        print("Called")
         let cell = tableView.dequeueReusableCell(withIdentifier: AlarmListTableViewCell.identifer, for: indexPath) as! AlarmListTableViewCell
-        cell.accessoryView = checkTurnOnOffAlarm
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "HH:mm"
-
-        let dateString = dateFormatter.string(from: self.alarmList[indexPath.row].getAlarmTime()!)
-        let description = "\(String(describing: self.alarmList[indexPath.row].getAlarmLabel())), \(String(describing: self.alarmList[indexPath.row].getAlarmrepeatDay()))"
-        print("descript \(description)")
-        cell.inputText(time: dateString, description: description)
+        let index = indexPath.row - 1
+        cell.backgroundColor = UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 1)
+        cell.selectionStyle = .none
+        
+        if indexPath.row > 0 {
+            cell.accessoryView = checkTurnOnOffAlarm
+            var description = ""
+            
+            if self.alarmList[index].getAlarmLabel() == nil{
+                description = "\(self.alarmList[index].getAlarmrepeatDay() ?? "안 함")"
+            }
+            else{
+                description = "\(self.alarmList[index].getAlarmLabel() ?? ""), \(self.alarmList[index].getAlarmrepeatDay() ?? "안 함")"
+            }
+            
+            cell.inputText(time: self.alarmList[index].getAlarmTime(), description: description,index: indexPath.row)
+        }
+        else{
+            cell.inputText(time: nil, description: nil,index: indexPath.row)
+        }
         
         return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UIScreen.main.bounds.height/3
+        let height = UIScreen.main.bounds.height
+        
+        if indexPath.row == 0 {
+            return height/10
+        }
+        
+        return height/5
     }
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { print("called \(self.alarmList.count)"); return self.alarmList.count }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print(indexPath.row)
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { return self.alarmList.count + 1}
 }
 
 struct NewAlarmInfo{
-    private var alarmTime: Date?    /// 시간
+    private var alarmTime: String?    /// 시간
     private var repeatDay: String?  /// 반복 요일
     private var alarmLabel: String? /// 레이블
     private var soundSong: String?  /// 사운드
     private var checkReAlarm: Bool? ///다시 알림기능
     
-    init(alarmTime: Date? = nil,repeatDay: String? = nil, alarmLabel: String? = nil, soundSong: String? = nil, checkReAlarm: Bool? = nil) {
+    init(alarmTime: String?, repeatDay: String?, alarmLabel: String?, soundSong: String?, checkReAlarm: Bool?) {
         self.alarmTime = alarmTime
         self.repeatDay = repeatDay
         self.alarmLabel = alarmLabel
@@ -214,7 +196,7 @@ struct NewAlarmInfo{
         self.checkReAlarm = checkReAlarm
     }
     
-    func getAlarmTime() -> Date? { return alarmTime }
+    func getAlarmTime() -> String? { return alarmTime }
     
     func getAlarmrepeatDay() -> String? {return repeatDay}
     
