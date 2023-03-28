@@ -168,11 +168,14 @@ final class AddAlarmOptionsController: UIViewController{
         guard let alarmTime = self.alarmTime else { return }
         guard let repeatDay = self.repeatDay else { return }
         guard let soundSong = self.soundSong else { return }
-        
-        self.delegate?.mustSend(color: UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 1))
-        self.delegate?.sendNewAlarm?(time: alarmTime, repeatDay: repeatDay, label: alarmLabel, soundSong: soundSong, reAlarmCheck: checkReAlarm)
 
         self.dismiss(animated: true)
+        
+        DispatchQueue.main.async {
+            self.delegate?.mustSend(color: UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 1))
+            self.delegate?.sendNewAlarm(time: alarmTime, repeatDay: repeatDay, label: self.alarmLabel, soundSong: soundSong, reAlarmCheck: self.checkReAlarm)
+        }
+        
     }
     
     // MARK: 취소 버튼 누르면 실행
@@ -231,10 +234,11 @@ extension AddAlarmOptionsController: UITextFieldDelegate{
 }
 
 // MARK: 알림 설정한 옵션들을 전송하는 프로토콜
-@objc protocol SendNewAlarm{
+//@objc
+protocol SendNewAlarm{
     
     /// optional 타입으로 저장 버튼 누르는 경우에만 실행
-    @objc optional func sendNewAlarm(time: Date, repeatDay: String, label: String?, soundSong: String, reAlarmCheck: Bool)
+   func sendNewAlarm(time: Date, repeatDay: String, label: String?, soundSong: String, reAlarmCheck: Bool)
     
     /// 취소 버튼으로 화면이 꺼지는 경우 실행
     func mustSend(color: UIColor)

@@ -61,9 +61,9 @@ final class AlarmListTableViewCell: UITableViewCell{
         descriptionLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor,constant: -10).isActive = true
         descriptionLabel.leftAnchor.constraint(equalTo: self.leftAnchor,constant: 10).isActive = true
     }
+    
     // MARK: 알람 데이터 입력하는 함수
     func inputText(time: String?, description: String?, index: Int){
-        
         switch index{
         case 0:
             addUI()
