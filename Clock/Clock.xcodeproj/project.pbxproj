@@ -14,6 +14,9 @@
 		3B36E30629D0224D005144A7 /* StopWatchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B36E30529D0224D005144A7 /* StopWatchController.swift */; };
 		3B36E30829D0230A005144A7 /* TimerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B36E30729D0230A005144A7 /* TimerController.swift */; };
 		3B36E30A29D023D9005144A7 /* WorldClockController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B36E30929D023D9005144A7 /* WorldClockController.swift */; };
+		3B36E30E29D06CC7005144A7 /* AddAlarmOptionsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B36E30D29D06CC7005144A7 /* AddAlarmOptionsController.swift */; };
+		3B36E31029D0757B005144A7 /* AlarmOptionsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B36E30F29D0757B005144A7 /* AlarmOptionsTableViewCell.swift */; };
+		3B36E31329D0B6D1005144A7 /* AlarmListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B36E31229D0B6D1005144A7 /* AlarmListTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +29,9 @@
 		3B36E30529D0224D005144A7 /* StopWatchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StopWatchController.swift; sourceTree = "<group>"; };
 		3B36E30729D0230A005144A7 /* TimerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerController.swift; sourceTree = "<group>"; };
 		3B36E30929D023D9005144A7 /* WorldClockController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldClockController.swift; sourceTree = "<group>"; };
+		3B36E30D29D06CC7005144A7 /* AddAlarmOptionsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAlarmOptionsController.swift; sourceTree = "<group>"; };
+		3B36E30F29D0757B005144A7 /* AlarmOptionsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmOptionsTableViewCell.swift; sourceTree = "<group>"; };
+		3B36E31229D0B6D1005144A7 /* AlarmListTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmListTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,12 +84,23 @@
 		3B36E30429D02019005144A7 /* View */ = {
 			isa = PBXGroup;
 			children = (
-				3B36E2F329D01EF2005144A7 /* AlarmController.swift */,
+				3B36E31129D0B526005144A7 /* Alarm */,
 				3B36E30529D0224D005144A7 /* StopWatchController.swift */,
 				3B36E30729D0230A005144A7 /* TimerController.swift */,
 				3B36E30929D023D9005144A7 /* WorldClockController.swift */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		3B36E31129D0B526005144A7 /* Alarm */ = {
+			isa = PBXGroup;
+			children = (
+				3B36E2F329D01EF2005144A7 /* AlarmController.swift */,
+				3B36E31229D0B6D1005144A7 /* AlarmListTableViewCell.swift */,
+				3B36E30D29D06CC7005144A7 /* AddAlarmOptionsController.swift */,
+				3B36E30F29D0757B005144A7 /* AlarmOptionsTableViewCell.swift */,
+			);
+			path = Alarm;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -157,10 +174,13 @@
 			files = (
 				3B36E2F429D01EF2005144A7 /* AlarmController.swift in Sources */,
 				3B36E30629D0224D005144A7 /* StopWatchController.swift in Sources */,
+				3B36E30E29D06CC7005144A7 /* AddAlarmOptionsController.swift in Sources */,
 				3B36E30829D0230A005144A7 /* TimerController.swift in Sources */,
 				3B36E2F029D01EF2005144A7 /* AppDelegate.swift in Sources */,
+				3B36E31329D0B6D1005144A7 /* AlarmListTableViewCell.swift in Sources */,
 				3B36E2F229D01EF2005144A7 /* SceneDelegate.swift in Sources */,
 				3B36E30A29D023D9005144A7 /* WorldClockController.swift in Sources */,
+				3B36E31029D0757B005144A7 /* AlarmOptionsTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
