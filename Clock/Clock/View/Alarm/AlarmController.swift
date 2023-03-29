@@ -40,6 +40,7 @@ class AlarmController: UIViewController {
     // MARK: 새롭게 추가되는 알람들 표시할 테이블 뷰
     private lazy var addAlarmTableView: UITableView = {
         let tableView = UITableView()
+        tableView.separatorStyle = .singleLine
         tableView.separatorColor = .gray
         tableView.backgroundColor = UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 1)
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -47,13 +48,7 @@ class AlarmController: UIViewController {
         return tableView
     }()
     
-    // MARK: 알림 On/Off Switch
-    private lazy var checkTurnOnOffAlarm: UISwitch = {
-       let checkSwitch = UISwitch()
-        checkSwitch.isOn = true
-        checkSwitch.addTarget(self, action: #selector(handleSwitch), for: .valueChanged)
-        return checkSwitch
-    }()
+ 
     
     /*
      UI Action & Add to View & AutoLayout 함수
@@ -80,7 +75,6 @@ class AlarmController: UIViewController {
             self.addAlarmTableView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
             self.addAlarmTableView.leftAnchor.constraint(equalTo: self.view.leftAnchor),
             self.addAlarmTableView.rightAnchor.constraint(equalTo: self.view.rightAnchor),
-            
         ])
     }
     
@@ -97,17 +91,6 @@ class AlarmController: UIViewController {
         present(addAlarm, animated: true)
     }
     
-    // MARK: Switch 변경시 실행되는 함수
-    @objc
-    private func handleSwitch(_ sender: UISwitch){
-        if sender.isOn{
-            self.checkAlarm = true
-        }
-        else{
-            self.checkAlarm = false
-        }
-    }
-    
     
 }
 
@@ -121,27 +104,23 @@ extension AlarmController: SendNewAlarm {
     }
     
     /// 저장 버튼 누른 경우 데이터를 가져옴
-    func sendNewAlarm(time: Date, repeatDay: String, label: String?, soundSong: String, reAlarmCheck: Bool) {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "HH:mm"
-        
-        let dateString = dateFormatter.string(from: time)
-        
-        
-
-        DispatchQueue.main.async {
-            self.list.append(repeatDay)
-            self.alarmList.append(NewAlarmInfo(alarmTime: dateString,
+    func sendNewAlarm(time: Date, repeatDay: String?, label: String?, soundSong: String, reAlarmCheck: Bool,index: Int?) {
+ 
+        if index == nil{
+            self.alarmList.append(NewAlarmInfo(alarmTime: time,
                                                repeatDay: repeatDay,
                                                alarmLabel: label,
                                                soundSong: soundSong,
                                                checkReAlarm: reAlarmCheck))
-            
-            self.addAlarmTableView.reloadData()
         }
-        
-        
-        
+        else{
+            self.alarmList[index!].alarmTime = time
+            self.alarmList[index!].repeatDay = repeatDay
+            self.alarmList[index!].alarmLabel = label
+            self.alarmList[index!].soundSong = soundSong
+            self.alarmList[index!].checkReAlarm = reAlarmCheck
+        }
+        self.addAlarmTableView.reloadData()
     }
 }
 
@@ -153,13 +132,18 @@ extension AlarmController: UITableViewDelegate, UITableViewDataSource {
         let index = indexPath.row - 1
         cell.backgroundColor = UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 1)
         cell.selectionStyle = .none
+        var description = ""
         
-        switch indexPath.row{
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH:mm"
+        
+        
+        
+        switch indexPath.row {
         case 0:
-            cell.inputText(time: nil, description: nil,index: indexPath.row)
+            cell.inputText(time: "알람", description: nil,index: indexPath.row)
         default:
-//            cell.accessoryView = checkTurnOnOffAlarm
-            var description = ""
+            let dateString = dateFormatter.string(from: self.alarmList[index].getAlarmTime()!)
             
             if self.alarmList[index].getAlarmLabel() == nil{
                 description = "\(self.alarmList[index].getAlarmrepeatDay() ?? "안 함")"
@@ -168,8 +152,11 @@ extension AlarmController: UITableViewDelegate, UITableViewDataSource {
                 description = "\(self.alarmList[index].getAlarmLabel() ?? ""), \(self.alarmList[index].getAlarmrepeatDay() ?? "안 함")"
             }
 
-            cell.inputText(time: self.alarmList[index].getAlarmTime(),
-                           description: description,index: indexPath.row)
+            cell.inputText(time: dateString,
+                           description: description,
+                           index: indexPath.row)
+            
+            description = ""
         }
         
         return cell
@@ -183,26 +170,43 @@ extension AlarmController: UITableViewDelegate, UITableViewDataSource {
             return height/10
         }
         
-        return height/5
+        return height/8
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print(indexPath.row)
+        let index = indexPath.row - 1
+        
+        if indexPath.row > 0{
+            let addAlarm = AddAlarmOptionsController()
+            addAlarm.modalPresentationStyle = .pageSheet
+            addAlarm.delegate = self
+            addAlarm.alarmTime = self.alarmList[index].getAlarmTime()
+            addAlarm.repeatDay = self.alarmList[index].getAlarmrepeatDay()
+            addAlarm.alarmLabel = self.alarmList[index].getAlarmLabel()
+            addAlarm.soundSong = self.alarmList[index].getAlarmSong()
+            addAlarm.checkReAlarm = self.alarmList[index].getAlarmReAlarm()!
+            addAlarm.updateIndex = indexPath.row - 1
+            
+            self.view.backgroundColor = UIColor(red: 20/255, green: 30/255, blue: 20/255, alpha: 1)
+            self.addAlarmTableView.backgroundColor = UIColor(red: 20/255, green: 30/255, blue: 20/255, alpha: 1)
+            
+            present(addAlarm, animated: true)
+        }
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { return self.list.count + 1 }
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { return self.alarmList.count + 1 }
     
     func numberOfSections(in tableView: UITableView) -> Int { return 1 }
 }
 
 struct NewAlarmInfo{
-    private var alarmTime: String?    /// 시간
-    private var repeatDay: String?  /// 반복 요일
-    private var alarmLabel: String? /// 레이블
-    private var soundSong: String?  /// 사운드
-    private var checkReAlarm: Bool? ///다시 알림기능
+     var alarmTime: Date?    /// 시간
+     var repeatDay: String?  /// 반복 요일
+     var alarmLabel: String? /// 레이블
+     var soundSong: String?  /// 사운드
+     var checkReAlarm: Bool? ///다시 알림기능
     
-    init(alarmTime: String?, repeatDay: String?, alarmLabel: String?, soundSong: String?, checkReAlarm: Bool?) {
+    init(alarmTime: Date?, repeatDay: String?, alarmLabel: String?, soundSong: String?, checkReAlarm: Bool?) {
         self.alarmTime = alarmTime
         self.repeatDay = repeatDay
         self.alarmLabel = alarmLabel
@@ -210,7 +214,7 @@ struct NewAlarmInfo{
         self.checkReAlarm = checkReAlarm
     }
     
-    func getAlarmTime() -> String? { return alarmTime }
+    func getAlarmTime() -> Date? { return alarmTime }
     
     func getAlarmrepeatDay() -> String? {return repeatDay}
     
