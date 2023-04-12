@@ -19,9 +19,7 @@ final class StopWatchController: UIViewController{
     private var recordTime: Double = 0  /// 기록 재는 타이머, 소수점 2번째 자리
     private var maxTerm: Double = 0  /// 간격 최댓값
     private var minTerm: Double = Double(MAXFLOAT)    /// 간격 최솟값
-    private var beforeIndexPath = 0
     private var colorList: [UIColor] = []
-    private var colorListReverse: [UIColor] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -77,7 +75,7 @@ final class StopWatchController: UIViewController{
     // MARK: 랩 or 재설정 버튼
     private lazy var saveOrResetBtn: UIButton = {
        let btn = UIButton()
-        btn.titleLabel?.font = .systemFont(ofSize: 25)
+        btn.titleLabel?.font = .systemFont(ofSize: 15)
         btn.setTitle(leftText, for: .normal)
         if leftText == "랩"{
             btn.backgroundColor = UIColor(red: 134/255, green: 142/255, blue: 150/255, alpha: 0.3) /* #868e96 */
@@ -95,7 +93,7 @@ final class StopWatchController: UIViewController{
     // MARK: 시작, 정지 버튼
     private lazy var startAndStopBtn: UIButton = {
        let btn = UIButton()
-        btn.titleLabel?.font = .systemFont(ofSize: 25)
+        btn.titleLabel?.font = .systemFont(ofSize: 15)
         btn.setTitleColor(.white, for: .normal)
         btn.setTitle(rightText, for: .normal)
         if rightText == "시작"{
@@ -188,7 +186,6 @@ final class StopWatchController: UIViewController{
             self.maxTerm = 0
             self.minTerm = Double(MAXFLOAT)
             self.recordTime = 0
-            self.beforeIndexPath = 0
             self.colorList = []
             
             self.minuteLabel.text = "00:"
