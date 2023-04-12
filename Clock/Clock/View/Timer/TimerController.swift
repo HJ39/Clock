@@ -9,8 +9,7 @@ import Foundation
 import UIKit
 
 final class TimerController: UIViewController{
-    private var leftText = "취소"     /// 취소 버튼
-    private var rightText = "시작"    /// 시작, 일시정지, 재개 버튼
+    private var checkStart: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,7 +45,7 @@ final class TimerController: UIViewController{
     private lazy var resetBtn: UIButton = {
        let btn = UIButton()
         btn.titleLabel?.font = .systemFont(ofSize: 15)
-        btn.setTitle(leftText, for: .normal)
+        btn.setTitle("취소", for: .normal)
         btn.backgroundColor = UIColor(red: 134/255, green: 142/255, blue: 150/255, alpha: 0.2) /* #868e96 */
         btn.isEnabled = false
         btn.setTitleColor(.white, for: .normal)
@@ -61,19 +60,21 @@ final class TimerController: UIViewController{
        let btn = UIButton()
         btn.titleLabel?.font = .systemFont(ofSize: 15)
         btn.setTitleColor(.white, for: .normal)
-        btn.setTitle(rightText, for: .normal)
-        if rightText == "시작"{
-            btn.backgroundColor = UIColor(red: 30/255, green: 200/255, blue: 30/255, alpha: 0.3)
-        }
-        else{
-            btn.backgroundColor = UIColor(red: 200/255, green: 30/255, blue: 30/255, alpha: 0.3)
-        }
+        btn.setTitle("시작", for: .normal)
+        btn.backgroundColor = UIColor(red: 30/255, green: 200/255, blue: 30/255, alpha: 0.3)    /// 초록
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.layer.cornerRadius = UIScreen.main.bounds.width/12
         btn.addTarget(self, action: #selector(clickedStartAndStopBtn), for: .touchUpInside)
         return btn
     }()
     
+    private lazy var tesetLabel: UILabel = {
+       let label = UILabel()
+        label.text = "dafsfas"
+        label.textColor = .red
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
     /*
      UI Action & Add to View & AutoLayout 함수
@@ -81,22 +82,39 @@ final class TimerController: UIViewController{
     
     // MARK: Add UI To View
     private func addUIToView(){
-        self.view.addSubview(datePicker)
-        self.view.addSubview(songBtn)
+        if !checkStart{
+            self.view.addSubview(datePicker)
+        }
+        else{
+            self.view.addSubview(tesetLabel)
+        }
         
+        self.view.addSubview(songBtn)
         self.view.addSubview(resetBtn)
         self.view.addSubview(startAndStopBtn)
-       
+        
         setAutoLayout()
     }
     
     // MARK: 화면 구성
     private func setAutoLayout(){
+        
+        if !checkStart{
+            NSLayoutConstraint.activate([
+                self.datePicker.topAnchor.constraint(equalTo: self.view.topAnchor,constant: view.safeAreaLayoutGuide.layoutFrame.size.height/5),
+                self.datePicker.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+                self.datePicker.heightAnchor.constraint(equalToConstant: view.safeAreaLayoutGuide.layoutFrame.size.height/5),
+            ])
+        }
+        else{
+            NSLayoutConstraint.activate([
+                self.tesetLabel.topAnchor.constraint(equalTo: self.view.topAnchor,constant: view.safeAreaLayoutGuide.layoutFrame.size.height/5),
+                self.tesetLabel.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+                self.tesetLabel.heightAnchor.constraint(equalToConstant: view.safeAreaLayoutGuide.layoutFrame.size.height/5),
+            ])
+        }
+        
         NSLayoutConstraint.activate([
-            self.datePicker.topAnchor.constraint(equalTo: self.view.topAnchor,constant: view.safeAreaLayoutGuide.layoutFrame.size.height/5),
-            self.datePicker.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
-            self.datePicker.heightAnchor.constraint(equalToConstant: view.safeAreaLayoutGuide.layoutFrame.size.height/5),
-            
             self.resetBtn.centerYAnchor.constraint(equalTo: self.view.centerYAnchor),
             self.resetBtn.leftAnchor.constraint(equalTo: self.view.leftAnchor, constant: 20),
             self.resetBtn.widthAnchor.constraint(equalToConstant: view.safeAreaLayoutGuide.layoutFrame.size.width/6),
@@ -116,10 +134,12 @@ final class TimerController: UIViewController{
         
     }
     
-    // MARK: 노래 선택하는 버튼 눌렀을 ㄸ
+    
+    
+    // MARK: 노래 선택하는 버튼 눌렀을 때
     @objc
     private func clickedSongBtn(){
-        print("cccc")
+        
     }
     
     // MARK: 취소 버튼 눌렀을 때
@@ -128,22 +148,30 @@ final class TimerController: UIViewController{
         self.resetBtn.isEnabled = false
         self.resetBtn.backgroundColor = UIColor(red: 134/255, green: 142/255, blue: 150/255, alpha: 0.2) /* #868e96 */
         self.startAndStopBtn.setTitle("시작", for: .normal)
-        
-        
+        self.startAndStopBtn.backgroundColor = UIColor(red: 30/255, green: 200/255, blue: 30/255, alpha: 0.3)   /// 초록
+        self.checkStart = false
+        self.tesetLabel.removeFromSuperview()
+        addUIToView()
     }
     
     // MARK: 시작, 일시정지, 재개 버튼 눌렀을 때
     @objc
     private func clickedStartAndStopBtn(){
+        self.checkStart = true
+        self.datePicker.removeFromSuperview()
+        addUIToView()
         if self.startAndStopBtn.titleLabel?.text == "시작"{
             self.resetBtn.isEnabled = true
             self.resetBtn.backgroundColor = UIColor(red: 134/255, green: 142/255, blue: 150/255, alpha: 0.3) /* #868e96 */
+            self.startAndStopBtn.backgroundColor = UIColor(red: 200/255, green: 30/255, blue: 30/255, alpha: 0.3)   /// 빨강
             self.startAndStopBtn.setTitle("일시정지", for: .normal)
         }
         else if self.startAndStopBtn.titleLabel?.text == "일시정지"{
+            self.startAndStopBtn.backgroundColor = UIColor(red: 30/255, green: 200/255, blue: 30/255, alpha: 0.3)   /// 초록
             self.startAndStopBtn.setTitle("재개", for: .normal)
         }
         else if self.startAndStopBtn.titleLabel?.text == "재개"{
+            self.startAndStopBtn.backgroundColor = UIColor(red: 200/255, green: 30/255, blue: 30/255, alpha: 0.3)   /// 빨강
             self.startAndStopBtn.setTitle("일시정지", for: .normal)
         }
     }
