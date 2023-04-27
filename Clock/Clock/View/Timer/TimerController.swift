@@ -10,7 +10,8 @@ import UIKit
 
 final class TimerController: UIViewController{
     private var checkStart: Bool = false
-    
+    private var timer: Timer?
+    private var timerCount: Double = 0
     override func viewDidLoad() {
         super.viewDidLoad()
         addUIToView()
@@ -27,7 +28,6 @@ final class TimerController: UIViewController{
         
         picker.translatesAutoresizingMaskIntoConstraints = false
         picker.backgroundColor = .white
-        
         return picker
     }()
     
@@ -68,12 +68,43 @@ final class TimerController: UIViewController{
         return btn
     }()
     
-    private lazy var tesetLabel: UILabel = {
-       let label = UILabel()
-        label.text = "dafsfas"
+    // MARK: 시간 단위 라벨
+    private lazy var hourLabel: UILabel = {
+        let label = UILabel()
+        label.text = "00:"
         label.textColor = .red
+        label.font = .systemFont(ofSize: 40)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
+    }()
+    
+    // MARK: 분 단위 라벨
+    private lazy var minuteLabel: UILabel = {
+        let label = UILabel()
+        label.text = "00:"
+        label.textColor = .red
+        label.font = .systemFont(ofSize: 40)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    // MARK: 초 단위 라벨
+    private lazy var secondLabel: UILabel = {
+        let label = UILabel()
+        label.text = "00"
+        label.textColor = .red
+        label.font = .systemFont(ofSize: 40)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    // MARK: 시, 분, 초 담는 stack view
+    private lazy var timeStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [hourLabel,minuteLabel,secondLabel])
+        stack.axis = .horizontal
+        stack.distribution = .fillEqually
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
     }()
     
     /*
@@ -86,7 +117,7 @@ final class TimerController: UIViewController{
             self.view.addSubview(datePicker)
         }
         else{
-            self.view.addSubview(tesetLabel)
+            self.view.addSubview(timeStack)
         }
         
         self.view.addSubview(songBtn)
@@ -108,9 +139,9 @@ final class TimerController: UIViewController{
         }
         else{
             NSLayoutConstraint.activate([
-                self.tesetLabel.topAnchor.constraint(equalTo: self.view.topAnchor,constant: view.safeAreaLayoutGuide.layoutFrame.size.height/5),
-                self.tesetLabel.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
-                self.tesetLabel.heightAnchor.constraint(equalToConstant: view.safeAreaLayoutGuide.layoutFrame.size.height/5),
+                self.timeStack.topAnchor.constraint(equalTo: self.view.topAnchor,constant: view.safeAreaLayoutGuide.layoutFrame.size.height/5),
+                self.timeStack.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+                self.timeStack.heightAnchor.constraint(equalToConstant: view.safeAreaLayoutGuide.layoutFrame.size.height/5),
             ])
         }
         
@@ -134,8 +165,6 @@ final class TimerController: UIViewController{
         
     }
     
-    
-    
     // MARK: 노래 선택하는 버튼 눌렀을 때
     @objc
     private func clickedSongBtn(){
@@ -150,7 +179,9 @@ final class TimerController: UIViewController{
         self.startAndStopBtn.setTitle("시작", for: .normal)
         self.startAndStopBtn.backgroundColor = UIColor(red: 30/255, green: 200/255, blue: 30/255, alpha: 0.3)   /// 초록
         self.checkStart = false
-        self.tesetLabel.removeFromSuperview()
+        self.timeStack.removeFromSuperview()
+        timer?.invalidate()
+        timerCount = 0
         addUIToView()
     }
     
@@ -162,6 +193,7 @@ final class TimerController: UIViewController{
         addUIToView()
         if self.startAndStopBtn.titleLabel?.text == "시작"{
             self.resetBtn.isEnabled = true
+            timerThread()
             self.resetBtn.backgroundColor = UIColor(red: 134/255, green: 142/255, blue: 150/255, alpha: 0.3) /* #868e96 */
             self.startAndStopBtn.backgroundColor = UIColor(red: 200/255, green: 30/255, blue: 30/255, alpha: 0.3)   /// 빨강
             self.startAndStopBtn.setTitle("일시정지", for: .normal)
@@ -169,11 +201,80 @@ final class TimerController: UIViewController{
         else if self.startAndStopBtn.titleLabel?.text == "일시정지"{
             self.startAndStopBtn.backgroundColor = UIColor(red: 30/255, green: 200/255, blue: 30/255, alpha: 0.3)   /// 초록
             self.startAndStopBtn.setTitle("재개", for: .normal)
+            timer?.invalidate()
         }
         else if self.startAndStopBtn.titleLabel?.text == "재개"{
             self.startAndStopBtn.backgroundColor = UIColor(red: 200/255, green: 30/255, blue: 30/255, alpha: 0.3)   /// 빨강
             self.startAndStopBtn.setTitle("일시정지", for: .normal)
+            timerThread()
         }
     }
+    
+    // MARK: 선택한 시간 변환
+    private func formatTime() -> Int{
+        let settingTime = self.datePicker.date
+    
+        let date = DateFormatter()
+        date.locale = Locale(identifier: "ko_kr")
+        date.dateFormat = "HH:mm:ss"
+        
+        let settingTimeformat = date.string(from: settingTime)
+        print(settingTimeformat)
+        let settingString = settingTimeformat.split(separator: ":")
+        
+        var formattingTime = 0
+        formattingTime += (Int(settingString[0])! * 3600)
+        formattingTime += (Int(settingString[1])! * 60)
+        formattingTime += Int(settingString[2])!
+        
+        if formattingTime == 0{
+            formattingTime = 60
+        }
+        return formattingTime
+    }
+    
+    // MARK: 타이머 돌리는 스레드 함수
+    private func timerThread(){
+        let formattingTime = formatTime()
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true, block: { timer in
+            self.timerCount += timer.timeInterval
+            
+            DispatchQueue.main.async {
+                let digit: Double = pow(10, 2) // 10의 3제곱
+                let timerCount = Double(formattingTime) - (floor(self.timerCount * digit) / digit)
+                
+                if timerCount == 0{
+                    timer.invalidate()
+                }
+                
+                let hour = (Int)(fmod(timerCount/60/60, 60))
+                let minute = (Int)(fmod((timerCount/60), 60))
+                let second = (Int)(fmod(timerCount, 60))
+
+                
+                var strHour: String = "\(hour)"
+                var strMinute: String = "\(minute)"
+                var strSecond: String = "\(second)"
+                
+                if second < 10{
+                    strSecond = "0\(second)"
+                }
+                if minute < 10{
+                    strMinute = "0\(minute)"
+                }
+                if hour < 10{
+                    strHour = "0\(hour)"
+                }
+                
+                self.hourLabel.text = "\(strHour):"
+                self.minuteLabel.text = "\(strMinute):"
+                self.secondLabel.text = "\(strSecond)"
+                
+            }
+        })
+        
+    }
+    
     
 }
