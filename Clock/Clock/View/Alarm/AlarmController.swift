@@ -92,10 +92,13 @@ class AlarmController: UIViewController {
     // MARK: Switch 변경시 실행되는 함수
     @objc
     private func changedSwitch(_ sender: UISwitch){
+        
         if sender.isOn{
+            self.alarmList[sender.tag].checkReAlarm = true
             self.alarmList[sender.tag].color = .white
         }
         else{
+            self.alarmList[sender.tag].checkReAlarm = false
             self.alarmList[sender.tag].color = .gray
         }
         self.addAlarmTableView.reloadData()
@@ -175,7 +178,7 @@ extension AlarmController: UITableViewDelegate, UITableViewDataSource {
             
             if self.alarmList[index].getColor() == .white{
                 /// switch 초기화면 버튼이 누르지 않은 채로
-                switchView.setOn(true, animated: true)
+                switchView.setOn(self.alarmList[index].checkReAlarm ?? true, animated: true)
             }
             
             /// swtichView tag 지정
